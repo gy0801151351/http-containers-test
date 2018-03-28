@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://ch.qos.logback/logback" xsi:noNamespaceSchemaLocation="http://hjb.szrzd.com.cn/schema/logback-config.xsd" xsi:schemaLocation="http://ch.qos.logback/logback http://hjb.szrzd.com.cn/schema/logback-config.xsd">
+	<property name="log_home" value="D:/log" />
+	<property name="file_name" value="mvc-netty" />
+	<property name="file_max_history" value="365"/>
+	<property name="file_max_size" value="100MB"/>
+	<property name="file_total_size_cap" value="20GB"/>
+	<property name="daily_file_name" value="mvc-netty"/>
+	<property name="daily_file_max_history" value="30"/>
+	<property name="global_daily_file_name" value="global-daily-log"/>
+	<property name="global_daily_file_max_history" value="90"/>
+	<include resource="com/rzd/framework/kernel/log/logback/logback-file-appender.xml"/>
+	<jmxConfigurator/>
+
+	<!-- 日志输出级别 -->
+	<logger level="info" name="org.springframework" additivity="false">
+		<appender-ref ref="console" />
+		<appender-ref ref="logfile" />
+		<appender-ref ref="errfile" />
+	</logger>
+	<root level="info">
+		<appender-ref ref="console" />
+		<appender-ref ref="logfile" />
+		<appender-ref ref="errfile" />
+	</root>
+</configuration>
