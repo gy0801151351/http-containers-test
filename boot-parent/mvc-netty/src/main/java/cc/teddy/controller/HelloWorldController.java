@@ -1,6 +1,5 @@
 package cc.teddy.controller;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -14,7 +13,6 @@ import com.rzd.framework.kernel.Kernel.Utility;
 
 import cc.teddy.framework.BaseController;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.MonoProcessor;
 
 @RestController
 // @RequestMapping("")
@@ -50,20 +48,21 @@ public class HelloWorldController extends BaseController {
 		int mainThreadCount = mainThreadSet.size();
 		Long lSleepTime = NumberUtil.parseLong(Utility.noEmpty(sleepTime, "0").trim());
 		logger.info("Main Thread ID: {}\tMax Thread ID: {}\tThread Count: {}", mainThreadId, maxMainThreadId, mainThreadCount);
-		return MonoProcessor.<String>create().onErrorReturn("error 2").doOnSuccess(s -> {
+		return Mono.<String>create(sink -> {
 			if (lSleepTime.longValue() > 0) {
 				try {
-					long subThreadId = Thread.currentThread().getId();
-					subThreadSet.add(subThreadId);
-					long maxSubThreadId = Collections.max(subThreadSet);
-					int subThreadCount = subThreadSet.size();
-					logger.info("Sub Thread ID: {}\t\tMax Thread ID: {}\tThread Count: {}\tSleep Time: {}", subThreadId, maxSubThreadId, subThreadCount, lSleepTime);
 					Thread.sleep(lSleepTime.longValue());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-		}).timeout(Duration.ofMillis(10000L)).thenReturn("hello2 mvc netty!");
+			long subThreadId = Thread.currentThread().getId();
+			subThreadSet.add(subThreadId);
+			long maxSubThreadId = Collections.max(subThreadSet);
+			int subThreadCount = subThreadSet.size();
+			logger.info("Sub Thread ID: {}\t\tMax Thread ID: {}\tThread Count: {}\tSleep Time: {}", subThreadId, maxSubThreadId, subThreadCount, lSleepTime);
+			sink.success("hello2 mvc netty!");
+		});
 	}
 
 	@GetMapping("/hello3")
@@ -74,20 +73,21 @@ public class HelloWorldController extends BaseController {
 		int mainThreadCount = mainThreadSet.size();
 		Long lSleepTime = NumberUtil.parseLong(Utility.noEmpty(sleepTime, "0").trim());
 		logger.info("Main Thread ID: {}\tMax Thread ID: {}\tThread Count: {}", mainThreadId, maxMainThreadId, mainThreadCount);
-		return Mono.delay(Duration.ofMillis(lSleepTime.longValue())).map(m -> {
+		Mono<String> mono = Mono.<String>create(sink -> {
 			if (lSleepTime.longValue() > 0) {
 				try {
-					long subThreadId = Thread.currentThread().getId();
-					subThreadSet.add(subThreadId);
-					long maxSubThreadId = Collections.max(subThreadSet);
-					int subThreadCount = subThreadSet.size();
-					logger.info("Sub Thread ID: {}\t\tMax Thread ID: {}\tThread Count: {}\tSleep Time: {}", subThreadId, maxSubThreadId, subThreadCount, lSleepTime);
-//					Thread.sleep(lSleepTime.longValue());
+					Thread.sleep(lSleepTime.longValue());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-			return "hello3 mvc netty!";
-		});
+			long subThreadId = Thread.currentThread().getId();
+			subThreadSet.add(subThreadId);
+			long maxSubThreadId = Collections.max(subThreadSet);
+			int subThreadCount = subThreadSet.size();
+			logger.info("Sub Thread Name: {}\t\tSub Thread ID: {}\t\tMax Thread ID: {}\tThread Count: {}\tSleep Time: {}", Thread.currentThread().getName(), subThreadId, maxSubThreadId, subThreadCount, lSleepTime);
+			sink.success("hello3 mvc netty!");
+		})/*.subscribeOn(Schedulers.elastic())*/;
+		return mono;
 	}
 }
