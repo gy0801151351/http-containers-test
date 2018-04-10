@@ -17,9 +17,9 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoProcessor;
 
 @RestController
-//@RequestMapping("")
+// @RequestMapping("")
 public class HelloWorldController extends BaseController {
-	
+
 	protected static Logger logger = LoggerFactory.getLogger(HelloWorldController.class);
 	protected static CopyOnWriteArraySet<Long> mainThreadSet = new CopyOnWriteArraySet<>();
 	protected static CopyOnWriteArraySet<Long> subThreadSet = new CopyOnWriteArraySet<>();
@@ -41,7 +41,7 @@ public class HelloWorldController extends BaseController {
 		}
 		return "hello mvc netty!";
 	}
-	
+
 	@GetMapping("/hello2")
 	public Mono<String> hello2(String sleepTime) {
 		long mainThreadId = Thread.currentThread().getId();
@@ -50,9 +50,7 @@ public class HelloWorldController extends BaseController {
 		int mainThreadCount = mainThreadSet.size();
 		Long lSleepTime = NumberUtil.parseLong(Utility.noEmpty(sleepTime, "0").trim());
 		logger.info("Main Thread ID: {}\tMax Thread ID: {}\tThread Count: {}", mainThreadId, maxMainThreadId, mainThreadCount);
-		return MonoProcessor.<String>create()
-				.onErrorReturn("error 2")
-				.doOnSuccess(s -> {
+		return MonoProcessor.<String>create().onErrorReturn("error 2").doOnSuccess(s -> {
 			if (lSleepTime.longValue() > 0) {
 				try {
 					long subThreadId = Thread.currentThread().getId();
@@ -66,45 +64,30 @@ public class HelloWorldController extends BaseController {
 				}
 			}
 		}).timeout(Duration.ofMillis(10000L)).thenReturn("hello2 mvc netty!");
-//		return Mono.fromCallable(() -> {
-//			if (lSleepTime.longValue() > 0) {
-//				try {
-//					long subThreadId = Thread.currentThread().getId();
-//					subThreadSet.add(subThreadId);
-//					long maxSubThreadId = Collections.max(subThreadSet);
-//					int subThreadCount = subThreadSet.size();
-//					logger.info("Sub Thread ID: {}\t\tMax Thread ID: {}\tThread Count: {}\tSleep Time: {}", subThreadId, maxSubThreadId, subThreadCount, lSleepTime);
-//					Thread.sleep(lSleepTime.longValue());
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//			return "hello2 mvc netty!";
-//		});
 	}
-	
-//	public Mono<ServerResponse> hello3(ServerRequest request) {
-//		String sleepTime = request.queryParam("sleepTime").orElseGet(() -> "0").trim();
-//		long mainThreadId = Thread.currentThread().getId();
-//		mainThreadSet.add(mainThreadId);
-//		long maxMainThreadId = Collections.max(mainThreadSet);
-//		int mainThreadCount = mainThreadSet.size();
-//		Long lSleepTime = NumberUtil.parseLong(Utility.noEmpty(sleepTime, "0").trim());
-//		logger.info("Main Thread ID: {}\tMax Thread ID: {}\tThread Count: {}", mainThreadId, maxMainThreadId, mainThreadCount);
-//		return ServerResponse.ok().body(p -> {
-//			if (lSleepTime.longValue() > 0) {
-//				try {
-//					long subThreadId = Thread.currentThread().getId();
-//					subThreadSet.add(subThreadId);
-//					long maxSubThreadId = Collections.max(subThreadSet);
-//					int subThreadCount = subThreadSet.size();
-//					logger.info("Sub Thread ID: {}\t\tMax Thread ID: {}\tThread Count: {}\tSleep Time: {}", subThreadId, maxSubThreadId, subThreadCount, lSleepTime);
+
+	@GetMapping("/hello3")
+	public Mono<String> hello3(String sleepTime) {
+		long mainThreadId = Thread.currentThread().getId();
+		mainThreadSet.add(mainThreadId);
+		long maxMainThreadId = Collections.max(mainThreadSet);
+		int mainThreadCount = mainThreadSet.size();
+		Long lSleepTime = NumberUtil.parseLong(Utility.noEmpty(sleepTime, "0").trim());
+		logger.info("Main Thread ID: {}\tMax Thread ID: {}\tThread Count: {}", mainThreadId, maxMainThreadId, mainThreadCount);
+		return Mono.delay(Duration.ofMillis(lSleepTime.longValue())).map(m -> {
+			if (lSleepTime.longValue() > 0) {
+				try {
+					long subThreadId = Thread.currentThread().getId();
+					subThreadSet.add(subThreadId);
+					long maxSubThreadId = Collections.max(subThreadSet);
+					int subThreadCount = subThreadSet.size();
+					logger.info("Sub Thread ID: {}\t\tMax Thread ID: {}\tThread Count: {}\tSleep Time: {}", subThreadId, maxSubThreadId, subThreadCount, lSleepTime);
 //					Thread.sleep(lSleepTime.longValue());
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//			p.onNext("hello3 mvc netty!");
-//		}, String.class);
-//	}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			return "hello3 mvc netty!";
+		});
+	}
 }
