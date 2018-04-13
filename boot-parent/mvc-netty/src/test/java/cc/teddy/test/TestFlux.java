@@ -180,7 +180,7 @@ public class TestFlux {
 	}
 	
 	@Test
-	public void test冷与热序列() throws Exception {
+	public void testCoolAndHotSequence() throws Exception {
 		Flux<Long> source1 = Flux.interval(Duration.ofMillis(1000)).take(10);
 		Flux<Long> source2 = Flux.interval(Duration.ofMillis(1000)).take(20).publish().autoConnect();
 		source1.subscribe();
