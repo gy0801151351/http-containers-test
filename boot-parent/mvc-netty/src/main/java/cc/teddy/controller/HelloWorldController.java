@@ -6,10 +6,8 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.rzd.framework.kernel.Kernel.NumberUtil;
-import com.rzd.framework.kernel.Kernel.Utility;
 
 import cc.teddy.framework.BaseController;
 import reactor.core.publisher.Mono;
@@ -23,12 +21,12 @@ public class HelloWorldController extends BaseController {
 	protected static CopyOnWriteArraySet<Long> subThreadSet = new CopyOnWriteArraySet<>();
 
 	@GetMapping("/hello")
-	public String index(String sleepTime) {
+	public String index(@RequestParam(name="sleepTime", defaultValue="0") String sleepTime) {
 		long threadId = Thread.currentThread().getId();
 		mainThreadSet.add(threadId);
 		long maxThreadId = Collections.max(mainThreadSet);
 		int threadCount = mainThreadSet.size();
-		Long lSleepTime = NumberUtil.parseLong(Utility.noEmpty(sleepTime, "0").trim());
+		Long lSleepTime = Long.parseLong(sleepTime);
 		logger.info("Thread ID: {}\tMax Thread ID: {}\tThread Count: {}\tSleep Time: {}", threadId, maxThreadId, threadCount, lSleepTime);
 		if (lSleepTime.longValue() > 0) {
 			try {
@@ -41,12 +39,12 @@ public class HelloWorldController extends BaseController {
 	}
 
 	@GetMapping("/hello2")
-	public Mono<String> hello2(String sleepTime) {
+	public Mono<String> hello2(@RequestParam(name="sleepTime", defaultValue="0") String sleepTime) {
 		long mainThreadId = Thread.currentThread().getId();
 		mainThreadSet.add(mainThreadId);
 		long maxMainThreadId = Collections.max(mainThreadSet);
 		int mainThreadCount = mainThreadSet.size();
-		Long lSleepTime = NumberUtil.parseLong(Utility.noEmpty(sleepTime, "0").trim());
+		Long lSleepTime = Long.parseLong(sleepTime);
 		logger.info("Main Thread ID: {}\tMax Thread ID: {}\tThread Count: {}", mainThreadId, maxMainThreadId, mainThreadCount);
 		return Mono.<String>create(sink -> {
 			if (lSleepTime.longValue() > 0) {
@@ -66,12 +64,12 @@ public class HelloWorldController extends BaseController {
 	}
 
 	@GetMapping("/hello3")
-	public Mono<String> hello3(String sleepTime) {
+	public Mono<String> hello3(@RequestParam(name="sleepTime", defaultValue="0") String sleepTime) {
 		long mainThreadId = Thread.currentThread().getId();
 		mainThreadSet.add(mainThreadId);
 		long maxMainThreadId = Collections.max(mainThreadSet);
 		int mainThreadCount = mainThreadSet.size();
-		Long lSleepTime = NumberUtil.parseLong(Utility.noEmpty(sleepTime, "0").trim());
+		Long lSleepTime = Long.parseLong(sleepTime);
 		logger.info("Main Thread ID: {}\tMax Thread ID: {}\tThread Count: {}", mainThreadId, maxMainThreadId, mainThreadCount);
 		Mono<String> mono = Mono.<String>create(sink -> {
 			if (lSleepTime.longValue() > 0) {

@@ -10,8 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.jmx.access.InvocationFailureException;
 
-import com.rzd.framework.kernel.Kernel.Utility;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -41,7 +39,7 @@ public class ControllerReturnTypeAspect {
 					Mono<?> returnMono = Mono.defer(() -> {
 						try {
 							Mono<?> mono = (Mono<?>) pjp.proceed();
-							mono = Utility.noEmpty(mono, Mono.empty());
+							mono = mono == null ? Mono.empty() : mono;
 							return mono;
 						} catch (Throwable t) {
 							return Mono.error(t);
@@ -52,7 +50,7 @@ public class ControllerReturnTypeAspect {
 					Flux<?> returnFlux = Flux.defer(() -> {
 						try {
 							Flux<?> flux = (Flux<?>) pjp.proceed();
-							flux = Utility.noEmpty(flux, Flux.empty());
+							flux = flux == null ? Flux.empty() : flux;
 							return flux;
 						} catch (Throwable t) {
 							return Flux.error(t);
